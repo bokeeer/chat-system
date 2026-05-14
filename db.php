@@ -1,17 +1,26 @@
 <?php
-// Fetch cloud variables if they exist, otherwise use local XAMPP defaults
-$host = getenv('DB_HOST') ?: 'localhost';
-$dbname = getenv('DB_NAME') ?: 'chat_system';
-$username = getenv('DB_USER') ?: 'root';
-$password = getenv('DB_PASS') ?: '';
-$port = getenv('DB_PORT') ?: '3306';
+// Temporary debug file - DELETE after testing
+echo "<pre>";
+echo "DB_HOST: [" . getenv('DB_HOST') . "]\n";
+echo "DB_NAME: [" . getenv('DB_NAME') . "]\n";
+echo "DB_USER: [" . getenv('DB_USER') . "]\n";
+echo "DB_PASS: [" . getenv('DB_PASS') . "]\n";
+echo "DB_PORT: [" . getenv('DB_PORT') . "]\n";
+echo "---\n";
+echo "_ENV DB_HOST: [" . ($_ENV['DB_HOST'] ?? 'NOT SET') . "]\n";
+echo "_ENV DB_PASS: [" . ($_ENV['DB_PASS'] ?? 'NOT SET') . "]\n";
+echo "_SERVER DB_HOST: [" . ($_SERVER['DB_HOST'] ?? 'NOT SET') . "]\n";
+echo "</pre>";
 
+// Try connection with hardcoded Railway values for testing
 try {
-    // We added the port variable here so it can connect to Railway's custom port
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo = new PDO(
+        "mysql:host=yamanote.proxy.rlwy.net;port=39296;dbname=railway;charset=utf8",
+        "root",
+        "FJLHLKHEtU0qfqVCZi0kAAxmPEJhhDSJ"
+    );
+    echo "HARDCODED CONNECTION: SUCCESS ✅";
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    echo "HARDCODED CONNECTION FAILED: " . $e->getMessage();
 }
 ?>
