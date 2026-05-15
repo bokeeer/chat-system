@@ -63,6 +63,37 @@ try {
         j(['status' => 'ok']);
     }
 
+    if ($first === 'migrate') {
+        $sqls = [
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_pic VARCHAR(255) DEFAULT NULL",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT NULL",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_private TINYINT(1) DEFAULT 0",
+            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS attachment VARCHAR(255) DEFAULT NULL",
+            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS is_channel TINYINT(1) DEFAULT 0",
+            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS channel_type VARCHAR(20) DEFAULT 'public'",
+            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS description TEXT DEFAULT NULL",
+            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS profile_pic VARCHAR(255) DEFAULT NULL",
+            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS join_token VARCHAR(64) DEFAULT NULL",
+            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS view_only TINYINT(1) DEFAULT 0",
+            "ALTER TABLE group_members ADD COLUMN IF NOT EXISTS last_read_id INT DEFAULT 0",
+            "ALTER TABLE group_messages ADD COLUMN IF NOT EXISTS attachment VARCHAR(255) DEFAULT NULL",
+            "CREATE TABLE IF NOT EXISTS friends (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                friend_id INT NOT NULL,
+                status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE,
+                UNIQUE KEY unique_friendship (user_id, friend_id)
+            )"
+        ];
+        foreach ($sqls as $sql) {
+            try { $pdo->exec($sql); } catch (Exception $e) {}
+        }
+        j(['status' => 'migration successful']);
+    }
+
     if ($first === 'users') {
         if ($method === 'GET') {
             $search = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -150,7 +181,7 @@ try {
         $user = $stmt->fetch();
         if ($user) {
             $stored = $user['password'];
-            $is_hash = str_starts_with($stored, '$2y$') || str_starts_with($stored, '$argon2');
+            $is_hash = (substr($stored, 0, 4) === '$2y$' || substr($stored, 0, 7) === '$argon2');
             if ($is_hash) {
                 if (password_verify($password, $stored)) {
                     j([
@@ -346,7 +377,7 @@ try {
             $gid = (int) $pdo->lastInsertId();
             $pdo->prepare("INSERT INTO group_members (group_id, user_id, is_admin) VALUES (?, ?, 1)")->execute([$gid, $owner_id]);
             if ($member_ids) {
-                $ids = array_unique(array_filter(array_map(fn($x) => (int) trim($x), explode(',', $member_ids))));
+                $ids = array_unique(array_filter(array_map(function($x) { return (int) trim($x); }, explode(',', $member_ids))));
                 $ins = $pdo->prepare("INSERT IGNORE INTO group_members (group_id, user_id, is_admin) VALUES (?, ?, 0)");
                 foreach ($ids as $id) {
                     if ($id > 0 && $id !== $owner_id)
