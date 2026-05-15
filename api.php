@@ -64,20 +64,29 @@ try {
     }
 
     if ($first === 'migrate') {
-        $sqls = [
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_pic VARCHAR(255) DEFAULT NULL",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT NULL",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_private TINYINT(1) DEFAULT 0",
-            "ALTER TABLE messages ADD COLUMN IF NOT EXISTS attachment VARCHAR(255) DEFAULT NULL",
-            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS is_channel TINYINT(1) DEFAULT 0",
-            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS channel_type VARCHAR(20) DEFAULT 'public'",
-            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS description TEXT DEFAULT NULL",
-            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS profile_pic VARCHAR(255) DEFAULT NULL",
-            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS join_token VARCHAR(64) DEFAULT NULL",
-            "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS view_only TINYINT(1) DEFAULT 0",
-            "ALTER TABLE group_members ADD COLUMN IF NOT EXISTS last_read_id INT DEFAULT 0",
-            "ALTER TABLE group_messages ADD COLUMN IF NOT EXISTS attachment VARCHAR(255) DEFAULT NULL",
-            "CREATE TABLE IF NOT EXISTS friends (
+        try {
+            // Helper to add column if it doesn't exist
+            $addColumn = function($table, $col, $type) use ($pdo) {
+                $stmt = $pdo->query("SHOW COLUMNS FROM `$table` LIKE '$col'");
+                if (!$stmt->fetch()) {
+                    $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$col` $type");
+                }
+            };
+
+            $addColumn('users', 'profile_pic', 'VARCHAR(255) DEFAULT NULL');
+            $addColumn('users', 'bio', 'TEXT DEFAULT NULL');
+            $addColumn('users', 'is_private', 'TINYINT(1) DEFAULT 0');
+            $addColumn('messages', 'attachment', 'VARCHAR(255) DEFAULT NULL');
+            $addColumn('groups', 'is_channel', 'TINYINT(1) DEFAULT 0');
+            $addColumn('groups', 'channel_type', "VARCHAR(20) DEFAULT 'public'");
+            $addColumn('groups', 'description', 'TEXT DEFAULT NULL');
+            $addColumn('groups', 'profile_pic', 'VARCHAR(255) DEFAULT NULL');
+            $addColumn('groups', 'join_token', 'VARCHAR(64) DEFAULT NULL');
+            $addColumn('groups', 'view_only', 'TINYINT(1) DEFAULT 0');
+            $addColumn('group_members', 'last_read_id', 'INT DEFAULT 0');
+            $addColumn('group_messages', 'attachment', 'VARCHAR(255) DEFAULT NULL');
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS friends (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT NOT NULL,
                 friend_id INT NOT NULL,
@@ -86,12 +95,12 @@ try {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE,
                 UNIQUE KEY unique_friendship (user_id, friend_id)
-            )"
-        ];
-        foreach ($sqls as $sql) {
-            try { $pdo->exec($sql); } catch (Exception $e) {}
+            )");
+
+            j(['status' => 'migration successful']);
+        } catch (Exception $e) {
+            j(['error' => 'migration failed', 'detail' => $e->getMessage()], 500);
         }
-        j(['status' => 'migration successful']);
     }
 
     if ($first === 'users') {
