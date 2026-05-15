@@ -140,13 +140,17 @@ try {
                     $stmtPriv->execute([$other_id]);
                     $isPrivate = (int) $stmtPriv->fetchColumn();
 
-                    $stmtFriend = $pdo->prepare("SELECT 1 FROM friends WHERE status = 'accepted' AND ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?))");
-                    $stmtFriend->execute([$current_id, $other_id, $other_id, $current_id]);
-                    $isFriend = (bool) $stmtFriend->fetchColumn();
-
                     $stmtHistory = $pdo->prepare("SELECT 1 FROM messages WHERE (user_id = ? AND receiver_id = ?) OR (user_id = ? AND receiver_id = ?) LIMIT 1");
                     $stmtHistory->execute([$current_id, $other_id, $other_id, $current_id]);
                     $hasHistory = (bool) $stmtHistory->fetchColumn();
+
+                    // Check Friendship Status
+                    $stmtFriend = $pdo->prepare("SELECT id, status, user_id FROM friends 
+                                                 WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
+                    $stmtFriend->execute([$current_id, $other_id, $other_id, $current_id]);
+                    $friendRow = $stmtFriend->fetch(PDO::FETCH_ASSOC);
+                    
+                    $isFriend = ($friendRow && $friendRow['status'] === 'accepted');
 
                     if ($search === '' && !$isFriend && !$hasHistory) {
                         continue;
@@ -157,6 +161,11 @@ try {
                     $user['last_message'] = $lastMsg ? $lastMsg['message'] : '';
                     $user['last_time'] = $lastMsg ? $lastMsg['created_at'] : '';
                     $user['unread_count'] = $unreadCount;
+                    
+                    $user['friend_status'] = $friendRow ? $friendRow['status'] : 'none';
+                    $user['request_direction'] = $friendRow ? ($friendRow['user_id'] == $current_id ? 'sent' : 'received') : 'none';
+                    $user['request_id'] = $friendRow ? (int)$friendRow['id'] : null;
+
                     $aug[] = $user;
                 }
                 j($aug);

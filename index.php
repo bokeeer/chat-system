@@ -518,21 +518,19 @@ async function searchFriendCandidatesMobile(query){
       addFriendResultsMobile.innerHTML='<div style="padding:.75rem;color:var(--text-secondary);text-align:center;">No users found.</div>';
       return;
     }
-    const statuses=await Promise.all(users.map(u=>getJson(base+'/friends/status?user_id='+me.id+'&friend_id='+u.id)));
     let html='';
-    users.forEach((u,i)=>{
+    users.forEach((u)=>{
       const safe=esc(u.username);
-      const st=statuses[i];
       const avHtml=u.profile_pic?'<img src="'+u.profile_pic+'" style="width:32px;height:32px;object-fit:cover;border-radius:50%;">':'<div class="user-avatar" style="width:32px;height:32px;background:var(--primary-color);font-size:.85rem;">'+safe.charAt(0).toUpperCase()+'</div>';
       let actionBtn='';
-      if(st.status==='accepted') actionBtn='<button class="btn-friend-status friend-accepted" disabled>✓ Friends</button>';
-      else if(st.status==='pending'&&st.direction==='sent') actionBtn='<button class="btn-friend-status friend-pending" onclick="cancelFriendReqMobile('+u.id+','+st.request_id+',this)">⏳ Pending</button>';
-      else if(st.status==='pending'&&st.direction==='received') actionBtn='<button class="btn-friend-status btn-primary" onclick="acceptFriendFromSearchMobile('+st.request_id+',this)">Accept</button>';
+      if(u.friend_status==='accepted') actionBtn='<button class="btn-friend-status friend-accepted" disabled>✓ Friends</button>';
+      else if(u.friend_status==='pending'&&u.request_direction==='sent') actionBtn='<button class="btn-friend-status friend-pending" onclick="cancelFriendReqMobile('+u.id+','+u.request_id+',this)">⏳ Pending</button>';
+      else if(u.friend_status==='pending'&&u.request_direction==='received') actionBtn='<button class="btn-friend-status btn-primary" onclick="acceptFriendFromSearchMobile('+u.request_id+',this)">Accept</button>';
       else actionBtn='<button class="btn-friend-status btn-add-friend" onclick="sendFriendReqMobile('+u.id+',this)">Add Friend</button>';
       html+='<div class="friend-candidate-row"><div style="display:flex;align-items:center;gap:.6rem;">'+avHtml+'<span class="user-name">'+safe+'</span></div>'+actionBtn+'</div>';
     });
     addFriendResultsMobile.innerHTML=html;
-  }catch(e){console.error('searchFriendCandidates error',e);}
+  }catch(e){console.error('searchFriendCandidates error',e); addFriendResultsMobile.innerHTML='<div style="padding:.75rem;color:#ef4444;text-align:center;">Error searching users</div>';}
 }
 window.sendFriendReqMobile=async(friendId,btn)=>{
   const res=await postForm(base+'/friends/send',{user_id:me.id,friend_id:friendId});
