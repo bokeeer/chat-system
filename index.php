@@ -124,9 +124,25 @@ body.sidebar-mini .user-item{justify-content:center}
         <span id="apiUsernameBadge" style="font-weight:600; color: var(--text-color);">User</span>
       </div>
       <div style="display:flex;align-items:center;gap:.5rem;">
-        <button id="apiCreateGroup" class="btn-send" title="New Group">＋</button>
-        <button id="btnSettingsMobile" class="btn-send" title="Settings">⚙️</button>
+        <button id="btnFriendRequestsMobile" class="btn-icon" title="Friend Requests" style="position:relative;">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span id="friendReqBadgeMobile" style="display:none;position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.6rem;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 0 0 2px var(--sidebar-bg);">0</span>
+        </button>
+        <button id="btnAddFriendMobile" class="btn-icon" title="Add Friend">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="16" y1="11" x2="22" y2="11"></line></svg>
+        </button>
+        <button id="apiCreateGroup" class="btn-icon" title="New Group / Channel">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button id="btnSettingsMobile" class="btn-icon" title="Settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
       </div>
+    </div>
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" id="tabAllMobile" onclick="switchTabMobile('all')">All Chats</button>
+      <button class="sidebar-tab" id="tabFriendsMobile" onclick="switchTabMobile('friends')">Friends</button>
     </div>
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Search or start new chat">
@@ -135,7 +151,9 @@ body.sidebar-mini .user-item{justify-content:center}
   </div>
   <div class="chat-area">
     <div class="chat-header">
-      <button id="btnBack" class="btn-send" title="Back" style="margin-right:.5rem;">‹</button>
+      <button id="btnBack" class="btn-icon" title="Back" style="margin-right:.5rem;">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
       <div class="user-avatar" id="chatHeaderAvatar" style="background-color:#ccc; margin-right:1rem; visibility:hidden;">?</div>
       <div style="display:flex; flex-direction:column;">
         <h2 id="chatTitle" style="margin:0; font-size:1.1rem; font-weight:500;">Select a chat to start messaging</h2>
@@ -153,6 +171,7 @@ body.sidebar-mini .user-item{justify-content:center}
     </form>
   </div>
   
+  <!-- Settings Modal -->
   <div class="modal-overlay" id="settingsModalMobile" style="display:none;">
     <div class="modal" style="max-width:350px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
@@ -175,6 +194,33 @@ body.sidebar-mini .user-item{justify-content:center}
         </button>
     </div>
   </div>
+
+  <!-- Add Friend Modal -->
+  <div class="modal-overlay" id="addFriendModalMobile" style="display:none;">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+        <h3 style="margin:0;">Add a Friend</h3>
+        <button class="modal-close" onclick="document.getElementById('addFriendModalMobile').style.display='none'">✕</button>
+      </div>
+      <input type="text" id="addFriendSearchMobile" placeholder="Search by username..." style="width:100%;padding:.6rem .8rem;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-color);color:var(--text-color);margin-bottom:.75rem;">
+      <div id="addFriendResultsMobile" class="modal-users" style="max-height:280px;"></div>
+    </div>
+  </div>
+
+  <!-- Friend Requests Modal -->
+  <div class="modal-overlay" id="friendReqModalMobile" style="display:none;">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+        <h3 style="margin:0;">Friend Requests</h3>
+        <button class="modal-close" onclick="document.getElementById('friendReqModalMobile').style.display='none'">✕</button>
+      </div>
+      <div id="friendReqListMobile" class="modal-users" style="max-height:240px;"></div>
+      <hr style="border:0; border-top:1px solid var(--border-color); margin: 1rem 0;">
+      <h3 style="margin:0 0 .75rem 0;">Your Friends</h3>
+      <div id="friendModalListMobile" class="modal-users" style="max-height:240px;"></div>
+    </div>
+  </div>
+
 </div>
 <script>
 const base='api.php';
@@ -211,7 +257,19 @@ const settingsModalMobile=document.getElementById('settingsModalMobile');
 const privacyToggleMobile=document.getElementById('privacyToggleMobile');
 const btnSettingsLogoutMobile=document.getElementById('btnSettingsLogoutMobile');
 
-function setMe(u){me=u;localStorage.setItem('me',JSON.stringify(u));auth.classList.add('hide');app.classList.remove('hide');apiUsernameBadge.textContent=u.username;apiAvatar.textContent=u.username.charAt(0).toUpperCase();document.body.classList.remove('in-chat');loadUsers();resetChat()}
+function setMe(u){
+  me=u;
+  localStorage.setItem('me',JSON.stringify(u));
+  auth.classList.add('hide');
+  app.classList.remove('hide');
+  apiUsernameBadge.textContent=u.username;
+  const initial=u.username.charAt(0).toUpperCase();
+  apiAvatar.style.overflow='hidden';
+  apiAvatar.innerHTML=u.profile_pic ? '<img src="'+u.profile_pic+'" style="width:100%;height:100%;object-fit:cover;">' : initial;
+  document.body.classList.remove('in-chat');
+  loadUsers();
+  resetChat();
+}
 function loadMe(){const s=localStorage.getItem('me');if(s){try{const u=JSON.parse(s);if(u&&u.id&&u.username){setMe(u)}}catch(e){}}}
 
 async function postForm(url,data){const p=new URLSearchParams();Object.keys(data).forEach(k=>p.append(k,data[k]??''));const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p});const t=await r.text();try{return{ok:r.ok,json:JSON.parse(t)}}catch(e){return{ok:r.ok,json:{},text:t}}}
@@ -234,20 +292,22 @@ async function loadUsers2(){
     const isActive = (groupId==g.id);
     const initial = (g.name&&g.name.length?g.name.charAt(0).toUpperCase():'G');
     const safe = esc(g.name||'Group');
+    const avHtml = g.profile_pic ? '<img src="'+g.profile_pic+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : initial;
     let timeDisplay='';
     if(g.last_time){const d=new Date(g.last_time.replace(' ','T'));if(!isNaN(d))timeDisplay=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
     const lastMsg=g.last_message?esc(g.last_message):'';
-    html+='<div class="user-item '+(isActive?'active':'')+'" data-type="group" data-gid="'+g.id+'" data-name="'+safe+'" title="'+safe+'" aria-label="'+safe+'"><div class="user-avatar" style="background-color:#1e293b;">'+initial+'</div><div class="user-info"><div class="user-top"><span class="user-name">'+safe+'</span><span class="user-time">'+timeDisplay+'</span></div><div class="user-bottom"><span class="last-message">'+(lastMsg||'')+'</span></div></div></div>';
+    html+='<div class="user-item '+(isActive?'active':'')+'" data-type="group" data-gid="'+g.id+'" data-name="'+safe+'" title="'+safe+'" aria-label="'+safe+'"><div class="user-avatar" style="background-color:#1e293b;overflow:hidden;">'+avHtml+'</div><div class="user-info"><div class="user-top"><span class="user-name">'+safe+'</span><span class="user-time">'+timeDisplay+'</span></div><div class="user-bottom"><span class="last-message">'+(lastMsg||'')+'</span></div></div></div>';
   });
   (Array.isArray(users)?users:[]).forEach(u=>{
     const isActive=(contactId==u.id && groupId===null);
     const initial=u.username.charAt(0).toUpperCase();
     const safe=esc(u.username);
+    const avHtml = u.profile_pic ? '<img src="'+u.profile_pic+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : initial;
     let timeDisplay='';
     if(u.last_time){const d=new Date(u.last_time.replace(' ','T'));if(!isNaN(d))timeDisplay=d.toLocaleDateString([], {month:'short',day:'numeric'});}
     const unread=u.unread_count&&u.unread_count>0;
     const lastMsg=u.last_message?esc(u.last_message):'';
-    html+='<div class="user-item '+(isActive?'active':'')+'" data-type="user" data-id="'+u.id+'" data-name="'+safe+'" data-canmessage="'+(u.can_message?'true':'false')+'" title="'+safe+'" aria-label="'+safe+'"><div class="user-avatar" style="background-color: var(--primary-color); box-shadow: 0 0 5px rgba(99,102,241,0.4);">'+initial+'</div><div class="user-info"><div class="user-top"><span class="user-name">'+safe+'</span><span class="user-time">'+timeDisplay+'</span></div><div class="user-bottom"><span class="last-message" style="'+(unread?'font-weight:600; color: var(--text-color);':'')+'">'+(lastMsg||'')+'</span>'+(unread?'<div class="unread-badge">'+u.unread_count+'</div>':'')+'</div></div></div>';
+    html+='<div class="user-item '+(isActive?'active':'')+'" data-type="user" data-id="'+u.id+'" data-name="'+safe+'" data-canmessage="'+(u.can_message?'true':'false')+'" title="'+safe+'" aria-label="'+safe+'"><div class="user-avatar" style="background-color: var(--primary-color); box-shadow: 0 0 5px rgba(99,102,241,0.4);overflow:hidden;">'+avHtml+'</div><div class="user-info"><div class="user-top"><span class="user-name">'+safe+'</span><span class="user-time">'+timeDisplay+'</span></div><div class="user-bottom"><span class="last-message" style="'+(unread?'font-weight:600; color: var(--text-color);':'')+'">'+(lastMsg||'')+'</span>'+(unread?'<div class="unread-badge">'+u.unread_count+'</div>':'')+'</div></div></div>';
   });
   userList.innerHTML = html;
   Array.from(userList.querySelectorAll('.user-item')).forEach(el=>{
@@ -262,10 +322,11 @@ async function loadUsers2(){
 loadUsers = loadUsers2;
 let renderedIds=new Set();
 function resetChat(){contactId=null;groupId=null;lastId=0;renderedIds=new Set();chatTitle.textContent='Global Chat';chatArea.innerHTML='';chatForm.style.display='none';chatHeaderAvatar.style.visibility='hidden';if(apiLeaveGroup)apiLeaveGroup.style.display='none'}
-function selectContact(id,name,canMessage=true){contactId=id;groupId=null;lastId=0;renderedIds=new Set();chatTitle.textContent=name;chatArea.innerHTML='';chatForm.style.display='flex';chatHeaderAvatar.style.visibility='visible';chatHeaderAvatar.innerText=name&&name.length?name.charAt(0).toUpperCase():'?';chatHeaderAvatar.style.backgroundColor=id? 'var(--primary-color)' : '#6366f1';if(canMessage){messageInput.disabled=false;messageInput.placeholder="Type a message"}else{messageInput.disabled=true;messageInput.placeholder="this user is set the account on private"}if(apiLeaveGroup)apiLeaveGroup.style.display='none';if(window.innerWidth<640){document.body.classList.add('in-chat')}loadUsers();loadMessages()}
-function selectGroup(gid,name){groupId=gid;contactId=null;lastId=0;renderedIds=new Set();chatTitle.textContent=name;chatArea.innerHTML='';chatForm.style.display='flex';chatHeaderAvatar.style.visibility='visible';chatHeaderAvatar.innerText=name&&name.length?name.charAt(0).toUpperCase():'G';chatHeaderAvatar.style.backgroundColor='#1e293b';messageInput.disabled=false;messageInput.placeholder="Type a message";if(apiLeaveGroup)apiLeaveGroup.style.display='inline-flex';if(window.innerWidth<640){document.body.classList.add('in-chat')}loadUsers();loadMessages()}
+function selectContact(id,name,canMessage=true){contactId=id;groupId=null;lastId=0;renderedIds=new Set();lastThreadSenderId=null;chatTitle.textContent=name;chatArea.innerHTML='';chatForm.style.display='flex';chatHeaderAvatar.style.visibility='visible';chatHeaderAvatar.innerText=name&&name.length?name.charAt(0).toUpperCase():'?';chatHeaderAvatar.style.backgroundColor=id? 'var(--primary-color)' : '#6366f1';if(canMessage){messageInput.disabled=false;messageInput.placeholder="Type a message"}else{messageInput.disabled=true;messageInput.placeholder="this user is set the account on private"}if(apiLeaveGroup)apiLeaveGroup.style.display='none';if(window.innerWidth<640){document.body.classList.add('in-chat')}loadUsers();loadMessages()}
+function selectGroup(gid,name){groupId=gid;contactId=null;lastId=0;renderedIds=new Set();lastThreadSenderId=null;chatTitle.textContent=name;chatArea.innerHTML='';chatForm.style.display='flex';chatHeaderAvatar.style.visibility='visible';chatHeaderAvatar.innerText=name&&name.length?name.charAt(0).toUpperCase():'G';chatHeaderAvatar.style.backgroundColor='#1e293b';messageInput.disabled=false;messageInput.placeholder="Type a message";if(apiLeaveGroup)apiLeaveGroup.style.display='inline-flex';if(window.innerWidth<640){document.body.classList.add('in-chat')}loadUsers();loadMessages()}
 
 let isLoadingMessages=false;
+let lastThreadSenderId=null;
 async function loadMessages(){
   if(!me||isLoadingMessages)return;
   isLoadingMessages=true;
@@ -274,22 +335,48 @@ async function loadMessages(){
     if(groupId)url+='&group_id='+groupId; else if(contactId)url+='&contact_id='+contactId;
     const arr=await getJson(url);
     if(!Array.isArray(arr)||arr.length===0)return;
-    let buf='';
     let seenOther=false;
+    const isGroupChat=(groupId!==null)||(contactId===null);
     arr.forEach(m=>{
       if(renderedIds.has(m.id)) return;
       const d=new Date(m.created_at);
       const t=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-      const cls=m.is_self==1?'self':'other';
-      if(m.is_self==0) seenOther=true;
-      buf+='<div class=\"message '+cls+'\">'+esc(m.message)+'<span class=\"time\">'+t+'</span></div>';
+      const isSelf=m.is_self==1;
+      const isNewGroup=(m.sender_id!=lastThreadSenderId);
+      if(!isSelf) seenOther=true;
+      const container=document.createElement('div');
+      container.className='msg-container '+(isSelf?'self':'other')+' '+(isNewGroup?'new-group':'')+' last-in-group';
+      container.setAttribute('data-sender-id',m.sender_id||'');
+      let avatarHtml='';
+      let identityHtml='';
+      if(!isSelf){
+        if(!isNewGroup){
+          const prev=chatArea.querySelector('.msg-container.other.last-in-group:last-child');
+          if(prev&&prev.getAttribute('data-sender-id')==m.sender_id){
+            const pa=prev.querySelector('.msg-sender-avatar');
+            if(pa)pa.outerHTML='<div class="msg-avatar-placeholder"></div>';
+            prev.classList.remove('last-in-group');
+          }
+        }
+        const initial=m.username?m.username.charAt(0).toUpperCase():'?';
+        const avContent=m.profile_pic?'<img src="'+m.profile_pic+'">':initial;
+        avatarHtml='<div class="msg-sender-avatar" title="'+esc(m.username)+'">'+avContent+'</div>';
+        if(isGroupChat&&isNewGroup){
+          identityHtml='<div class="msg-sender-info"><span class="msg-sender-name">'+esc(m.username)+'</span></div>';
+        }
+      } else {
+        if(!isNewGroup){
+          const prev=chatArea.querySelector('.msg-container.self.last-in-group:last-child');
+          if(prev&&prev.getAttribute('data-sender-id')==m.sender_id) prev.classList.remove('last-in-group');
+        }
+      }
+      container.innerHTML=avatarHtml+'<div class="msg-column">'+identityHtml+'<div class="message '+(isSelf?'self':'other')+'">'+esc(m.message)+'<span class="time">'+t+'</span></div></div>';
+      chatArea.appendChild(container);
       lastId=Math.max(lastId,m.id);
       renderedIds.add(m.id);
+      lastThreadSenderId=m.sender_id;
     });
-    if(buf){
-      chatArea.insertAdjacentHTML('beforeend',buf);
-      chatArea.scrollTop=chatArea.scrollHeight;
-    }
+    chatArea.scrollTop=chatArea.scrollHeight;
     if(seenOther&&contactId){
       await postForm(base+'/messages/read',{user_id:me.id,sender_id:contactId});
     }
@@ -368,6 +455,192 @@ function openGroupCreateMobile(){
     if(res.ok){overlay.remove();await loadUsers();const gid=res.json.group_id||res.json.id||0;selectGroup(gid,name);}else{overlay.remove();}
   };
 }
+
+// ─── Sidebar Tabs ──────────────────────────────────────
+let currentTabMobile='all';
+function switchTabMobile(tab){
+  currentTabMobile=tab;
+  document.getElementById('tabAllMobile').classList.toggle('active',tab==='all');
+  document.getElementById('tabFriendsMobile').classList.toggle('active',tab==='friends');
+  if(tab==='friends') loadFriendsTabMobile(); else loadUsers();
+}
+async function loadFriendsTabMobile(){
+  if(!me) return;
+  try{
+    const arr=await getJson(base+'/friends/list?user_id='+me.id);
+    if(!Array.isArray(arr)||arr.length===0){
+      userList.innerHTML='<div style="padding:1rem;color:var(--text-secondary);text-align:center;">No friends yet.<br><small>Use the Add Friend button to find friends.</small></div>';
+      return;
+    }
+    let html='';
+    arr.forEach(f=>{
+      const initial=f.username.charAt(0).toUpperCase();
+      const safe=esc(f.username);
+      const avContent=f.profile_pic?'<img src="'+f.profile_pic+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">':initial;
+      html+='<div class="user-item" data-type="user" data-id="'+f.id+'" data-name="'+safe+'"><div class="user-avatar" style="background-color:var(--primary-color);overflow:hidden;">'+avContent+'</div><div class="user-info"><div class="user-top"><span class="user-name">'+safe+'</span></div><div class="user-bottom"><span class="last-message">'+esc(f.bio||'Friend')+'</span></div></div></div>';
+    });
+    userList.innerHTML=html;
+    Array.from(userList.querySelectorAll('.user-item')).forEach(el=>{
+      el.onclick=()=>selectContact(parseInt(el.getAttribute('data-id')),el.getAttribute('data-name'));
+    });
+  }catch(e){console.error('loadFriendsTab error',e);}
+}
+// Override loadUsers to respect current tab
+const _origLoadUsers=loadUsers;
+loadUsers=function(...args){
+  if(currentTabMobile==='friends') return loadFriendsTabMobile();
+  return _origLoadUsers(...args);
+};
+
+// ─── Add Friend Modal ──────────────────────────────────
+const addFriendModalMobile=document.getElementById('addFriendModalMobile');
+const btnAddFriendMobile=document.getElementById('btnAddFriendMobile');
+const addFriendSearchMobile=document.getElementById('addFriendSearchMobile');
+const addFriendResultsMobile=document.getElementById('addFriendResultsMobile');
+
+if(btnAddFriendMobile){
+  btnAddFriendMobile.onclick=()=>{
+    addFriendModalMobile.style.display='flex';
+    addFriendSearchMobile.value='';
+    searchFriendCandidatesMobile('');
+    setTimeout(()=>addFriendSearchMobile.focus(),80);
+  };
+}
+if(addFriendModalMobile) addFriendModalMobile.onclick=e=>{if(e.target===addFriendModalMobile)addFriendModalMobile.style.display='none';};
+if(addFriendSearchMobile) addFriendSearchMobile.oninput=()=>searchFriendCandidatesMobile(addFriendSearchMobile.value.trim());
+
+async function searchFriendCandidatesMobile(query){
+  if(!me) return;
+  try{
+    const url=base+'/users?user_id='+me.id+(query?'&search='+encodeURIComponent(query):'');
+    const users=await getJson(url);
+    if(!Array.isArray(users)||users.length===0){
+      addFriendResultsMobile.innerHTML='<div style="padding:.75rem;color:var(--text-secondary);text-align:center;">No users found.</div>';
+      return;
+    }
+    const statuses=await Promise.all(users.map(u=>getJson(base+'/friends/status?user_id='+me.id+'&friend_id='+u.id)));
+    let html='';
+    users.forEach((u,i)=>{
+      const safe=esc(u.username);
+      const st=statuses[i];
+      const avHtml=u.profile_pic?'<img src="'+u.profile_pic+'" style="width:32px;height:32px;object-fit:cover;border-radius:50%;">':'<div class="user-avatar" style="width:32px;height:32px;background:var(--primary-color);font-size:.85rem;">'+safe.charAt(0).toUpperCase()+'</div>';
+      let actionBtn='';
+      if(st.status==='accepted') actionBtn='<button class="btn-friend-status friend-accepted" disabled>✓ Friends</button>';
+      else if(st.status==='pending'&&st.direction==='sent') actionBtn='<button class="btn-friend-status friend-pending" onclick="cancelFriendReqMobile('+u.id+','+st.request_id+',this)">⏳ Pending</button>';
+      else if(st.status==='pending'&&st.direction==='received') actionBtn='<button class="btn-friend-status btn-primary" onclick="acceptFriendFromSearchMobile('+st.request_id+',this)">Accept</button>';
+      else actionBtn='<button class="btn-friend-status btn-add-friend" onclick="sendFriendReqMobile('+u.id+',this)">Add Friend</button>';
+      html+='<div class="friend-candidate-row"><div style="display:flex;align-items:center;gap:.6rem;">'+avHtml+'<span class="user-name">'+safe+'</span></div>'+actionBtn+'</div>';
+    });
+    addFriendResultsMobile.innerHTML=html;
+  }catch(e){console.error('searchFriendCandidates error',e);}
+}
+window.sendFriendReqMobile=async(friendId,btn)=>{
+  const res=await postForm(base+'/friends/send',{user_id:me.id,friend_id:friendId});
+  if(res.ok){btn.textContent='⏳ Pending';btn.className='btn-friend-status friend-pending';btn.onclick=null;}
+  else alert(res.json.error||'Could not send request');
+};
+window.cancelFriendReqMobile=async(friendId,requestId,btn)=>{
+  await postForm(base+'/friends/cancel',{user_id:me.id,request_id:requestId});
+  btn.textContent='Add Friend';btn.className='btn-friend-status btn-add-friend';btn.onclick=()=>sendFriendReqMobile(friendId,btn);
+};
+window.acceptFriendFromSearchMobile=async(requestId,btn)=>{
+  const res=await postForm(base+'/friends/accept',{user_id:me.id,request_id:requestId});
+  if(res.ok){btn.textContent='✓ Friends';btn.className='btn-friend-status friend-accepted';btn.disabled=true;pollFriendReqMobile();}
+};
+
+// ─── Friend Requests Modal ─────────────────────────────
+const friendReqModalMobile=document.getElementById('friendReqModalMobile');
+const btnFriendRequestsMobile=document.getElementById('btnFriendRequestsMobile');
+const friendReqBadgeMobile=document.getElementById('friendReqBadgeMobile');
+
+if(btnFriendRequestsMobile){
+  btnFriendRequestsMobile.onclick=()=>{
+    friendReqModalMobile.style.display='flex';
+    loadFriendRequestsMobile();
+    loadFriendsInModalMobile();
+  };
+}
+if(friendReqModalMobile) friendReqModalMobile.onclick=e=>{if(e.target===friendReqModalMobile)friendReqModalMobile.style.display='none';};
+
+async function loadFriendRequestsMobile(){
+  if(!me) return;
+  try{
+    const arr=await getJson(base+'/friends/pending?user_id='+me.id);
+    const list=document.getElementById('friendReqListMobile');
+    if(!Array.isArray(arr)||arr.length===0){
+      list.innerHTML='<div style="padding:.75rem;color:var(--text-secondary);text-align:center;">No pending requests 🎉</div>';
+      updateFriendBadgeMobile(0);return;
+    }
+    updateFriendBadgeMobile(arr.length);
+    let html='';
+    arr.forEach(r=>{
+      const safe=esc(r.username);
+      const avHtml=r.profile_pic?'<img src="'+r.profile_pic+'" style="width:36px;height:36px;object-fit:cover;border-radius:50%;">':'<div class="user-avatar" style="width:36px;height:36px;font-size:.9rem;">'+safe.charAt(0).toUpperCase()+'</div>';
+      html+='<div class="friend-req-row" id="freq-m-'+r.request_id+'"><div style="display:flex;align-items:center;gap:.6rem;">'+avHtml+'<span class="user-name">'+safe+'</span></div><div style="display:flex;gap:.4rem;"><button class="btn-primary btn-sm" onclick="acceptReqMobile('+r.request_id+')">Accept</button><button class="btn-cancel btn-sm" onclick="rejectReqMobile('+r.request_id+')">Reject</button></div></div>';
+    });
+    list.innerHTML=html;
+  }catch(e){console.error('loadFriendRequests error',e);}
+}
+window.acceptReqMobile=async(reqId)=>{
+  const res=await postForm(base+'/friends/accept',{user_id:me.id,request_id:reqId});
+  if(res.ok){const row=document.getElementById('freq-m-'+reqId);if(row)row.remove();pollFriendReqMobile();loadFriendsInModalMobile();if(currentTabMobile==='friends')loadFriendsTabMobile();}
+};
+window.rejectReqMobile=async(reqId)=>{
+  await postForm(base+'/friends/reject',{user_id:me.id,request_id:reqId});
+  const row=document.getElementById('freq-m-'+reqId);if(row)row.remove();pollFriendReqMobile();
+};
+
+async function loadFriendsInModalMobile(){
+  if(!me) return;
+  try{
+    const arr=await getJson(base+'/friends/list?user_id='+me.id);
+    const list=document.getElementById('friendModalListMobile');
+    if(!Array.isArray(arr)||arr.length===0){
+      list.innerHTML='<div style="padding:.75rem;color:var(--text-secondary);text-align:center;">No friends yet.</div>';
+      return;
+    }
+    let html='';
+    arr.forEach(f=>{
+      const safe=esc(f.username);
+      const avHtml=f.profile_pic?'<img src="'+f.profile_pic+'" style="width:36px;height:36px;object-fit:cover;border-radius:50%;">':'<div class="user-avatar" style="width:36px;height:36px;font-size:.9rem;">'+safe.charAt(0).toUpperCase()+'</div>';
+      html+='<div class="friend-req-row" id="fmod-m-'+f.id+'"><div style="display:flex;align-items:center;gap:.6rem;cursor:pointer;" onclick="friendReqModalMobile.style.display=\'none\';selectContact('+f.id+',\''+safe+'\')">'+avHtml+'<div><div class="user-name">'+safe+'</div><div style="font-size:0.75rem;color:var(--text-secondary);">'+esc(f.bio||'Friend')+'</div></div></div><div style="display:flex;gap:.4rem;"><button class="btn-cancel btn-sm" onclick="unfriendMobile('+f.id+',\''+safe+'\')">✕</button></div></div>';
+    });
+    list.innerHTML=html;
+  }catch(e){console.error('loadFriendsInModal error',e);}
+}
+window.unfriendMobile=async(friendId,username)=>{
+  if(!confirm('Unfriend '+username+'?'))return;
+  await postForm(base+'/friends/unfriend',{user_id:me.id,friend_id:friendId});
+  loadFriendsInModalMobile();
+  if(currentTabMobile==='friends')loadFriendsTabMobile();
+  loadUsers();
+};
+
+function updateFriendBadgeMobile(count){
+  if(!friendReqBadgeMobile) return;
+  if(count>0){friendReqBadgeMobile.textContent=count>9?'9+':count;friendReqBadgeMobile.style.display='flex';}
+  else friendReqBadgeMobile.style.display='none';
+}
+async function pollFriendReqMobile(){
+  if(!me) return;
+  try{const r=await getJson(base+'/friends/count?user_id='+me.id);updateFriendBadgeMobile(r.count||0);}catch(e){}
+}
+setInterval(pollFriendReqMobile,10000);
+setTimeout(()=>pollFriendReqMobile(),1500);
+
+// ─── File Upload Handler ───────────────────────────────
+window.handleFileUpload=(input)=>{
+  if(input.files&&input.files[0]){
+    const file=input.files[0];
+    const fd=new FormData();
+    fd.append('attachment',file);
+    fd.append('message','');
+    if(groupId)fd.append('group_id',groupId);
+    else if(contactId)fd.append('receiver_id',contactId);
+    fetch('send_message.php',{method:'POST',body:fd}).then(()=>loadMessages());
+    input.value='';
+  }
+};
 </script>
 </body>
 </html>

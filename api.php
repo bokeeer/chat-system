@@ -69,18 +69,18 @@ try {
             $current_id = get_int($_GET, 'user_id');
             if ($search !== '') {
                 if ($current_id) {
-                    $stmt = $pdo->prepare("SELECT id, username, created_at FROM users WHERE id != ? AND username LIKE ? ORDER BY username ASC");
+                    $stmt = $pdo->prepare("SELECT id, username, profile_pic, bio, created_at FROM users WHERE id != ? AND username LIKE ? ORDER BY username ASC");
                     $stmt->execute([$current_id, "%$search%"]);
                 } else {
-                    $stmt = $pdo->prepare("SELECT id, username, created_at FROM users WHERE username LIKE ? ORDER BY username ASC");
+                    $stmt = $pdo->prepare("SELECT id, username, profile_pic, bio, created_at FROM users WHERE username LIKE ? ORDER BY username ASC");
                     $stmt->execute(["%$search%"]);
                 }
             } else {
                 if ($current_id) {
-                    $stmt = $pdo->prepare("SELECT id, username, created_at FROM users WHERE id != ? ORDER BY username ASC");
+                    $stmt = $pdo->prepare("SELECT id, username, profile_pic, bio, created_at FROM users WHERE id != ? ORDER BY username ASC");
                     $stmt->execute([$current_id]);
                 } else {
-                    $stmt = $pdo->query("SELECT id, username, created_at FROM users ORDER BY username ASC");
+                    $stmt = $pdo->query("SELECT id, username, profile_pic, bio, created_at FROM users ORDER BY username ASC");
                 }
             }
             $users = $stmt->fetchAll();
@@ -145,7 +145,7 @@ try {
         $password = get_str($_POST, 'password', 255);
         if (!$username || !$password)
             j(['error' => 'username and password required'], 400);
-        $stmt = $pdo->prepare("SELECT id, password FROM users WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT id, username, password, profile_pic, bio FROM users WHERE username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
         if ($user) {
@@ -153,11 +153,21 @@ try {
             $is_hash = str_starts_with($stored, '$2y$') || str_starts_with($stored, '$argon2');
             if ($is_hash) {
                 if (password_verify($password, $stored)) {
-                    j(['id' => (int) $user['id'], 'username' => $username]);
+                    j([
+                        'id' => (int) $user['id'], 
+                        'username' => $user['username'],
+                        'profile_pic' => $user['profile_pic'],
+                        'bio' => $user['bio']
+                    ]);
                 }
             } else {
                 if ($password === $stored) {
-                    j(['id' => (int) $user['id'], 'username' => $username]);
+                    j([
+                        'id' => (int) $user['id'], 
+                        'username' => $user['username'],
+                        'profile_pic' => $user['profile_pic'],
+                        'bio' => $user['bio']
+                    ]);
                 }
             }
         }
@@ -180,7 +190,7 @@ try {
                 $where = "gm.group_id = :gid";
                 if ($last_id > 0)
                     $where .= " AND gm.id > :lid";
-                $sql = "SELECT gm.id, gm.message, gm.created_at, u.username, CASE WHEN gm.user_id = :uid THEN 1 ELSE 0 END as is_self
+                $sql = "SELECT gm.id, gm.message, gm.created_at, u.username, u.profile_pic, gm.user_id as sender_id, CASE WHEN gm.user_id = :uid THEN 1 ELSE 0 END as is_self
                         FROM group_messages gm JOIN users u ON gm.user_id = u.id
                         WHERE $where ORDER BY gm.created_at ASC";
                 $stmt = $pdo->prepare($sql);
@@ -192,7 +202,7 @@ try {
                 $where = "(m.user_id = :uid AND m.receiver_id = :cid) OR (m.user_id = :cid AND m.receiver_id = :uid)";
                 if ($last_id > 0)
                     $where .= " AND m.id > :lid";
-                $sql = "SELECT m.id, m.message, m.created_at, u.username, CASE WHEN m.user_id = :uid THEN 1 ELSE 0 END as is_self
+                $sql = "SELECT m.id, m.message, m.created_at, u.username, u.profile_pic, m.user_id as sender_id, CASE WHEN m.user_id = :uid THEN 1 ELSE 0 END as is_self
                         FROM messages m JOIN users u ON m.user_id = u.id WHERE $where ORDER BY m.created_at ASC";
                 $stmt = $pdo->prepare($sql);
                 $params = [':uid' => $user_id, ':cid' => $contact_id];
@@ -201,14 +211,14 @@ try {
                 $stmt->execute($params);
             } else {
                 if ($last_id > 0) {
-                    $sql = "SELECT m.id, m.message, m.created_at, u.username, CASE WHEN m.user_id = :uid THEN 1 ELSE 0 END as is_self
+                    $sql = "SELECT m.id, m.message, m.created_at, u.username, u.profile_pic, m.user_id as sender_id, CASE WHEN m.user_id = :uid THEN 1 ELSE 0 END as is_self
                             FROM messages m JOIN users u ON m.user_id = u.id 
                             WHERE m.receiver_id IS NULL AND m.id > :lid ORDER BY m.created_at ASC";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([':uid' => $user_id, ':lid' => $last_id]);
                 } else {
                     $sql = "SELECT * FROM (
-                                SELECT m.id, m.message, m.created_at, u.username, CASE WHEN m.user_id = :uid THEN 1 ELSE 0 END as is_self
+                                SELECT m.id, m.message, m.created_at, u.username, u.profile_pic, m.user_id as sender_id, CASE WHEN m.user_id = :uid THEN 1 ELSE 0 END as is_self
                                 FROM messages m JOIN users u ON m.user_id = u.id 
                                 WHERE m.receiver_id IS NULL ORDER BY m.created_at DESC LIMIT 50
                             ) as sub ORDER BY created_at ASC";
@@ -275,7 +285,7 @@ try {
             $user_id = get_int($_GET, 'user_id');
             if (!$user_id)
                 j(['error' => 'user_id required'], 400);
-            $stmt = $pdo->prepare("SELECT g.id, g.name, g.owner_id, g.created_at
+            $stmt = $pdo->prepare("SELECT g.id, g.name, g.owner_id, g.profile_pic, g.created_at
                                    FROM `groups` g
                                    JOIN group_members gm ON gm.group_id = g.id
                                    WHERE gm.user_id = ?
@@ -296,7 +306,14 @@ try {
                     $last = $row['username'] . ': ' . $row['message'];
                     $time = $row['created_at'];
                 }
-                $out[] = ['id' => (int) $g['id'], 'name' => $g['name'], 'owner_id' => (int) $g['owner_id'], 'last_message' => $last, 'last_time' => $time];
+                $out[] = [
+                    'id' => (int) $g['id'], 
+                    'name' => $g['name'], 
+                    'owner_id' => (int) $g['owner_id'], 
+                    'profile_pic' => $g['profile_pic'],
+                    'last_message' => $last, 
+                    'last_time' => $time
+                ];
             }
             j($out);
         }
@@ -339,6 +356,113 @@ try {
             $pdo->commit();
             j(['status' => 'ok', 'group_id' => $gid], 201);
         }
+        j(['error' => 'method not allowed'], 405);
+    }
+
+    // ─── Friends API ─────────────────────────────────────
+    if ($first === 'friends') {
+        $user_id = get_int($_GET, 'user_id') ?? get_int($_POST, 'user_id');
+
+        if ($method === 'GET' && $second === 'list') {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $search = get_str($_GET, 'search', 100);
+            $sql = "SELECT u.id, u.username, u.bio, u.profile_pic
+                    FROM friends f
+                    JOIN users u ON (CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END = u.id)
+                    WHERE (f.user_id = ? OR f.friend_id = ?) AND f.status = 'accepted'";
+            if ($search) {
+                $sql .= " AND u.username LIKE ? ORDER BY u.username ASC";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$user_id, $user_id, $user_id, "%$search%"]);
+            } else {
+                $sql .= " ORDER BY u.username ASC";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$user_id, $user_id, $user_id]);
+            }
+            j($stmt->fetchAll(PDO::FETCH_ASSOC));
+        }
+
+        if ($method === 'GET' && $second === 'pending') {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $stmt = $pdo->prepare("SELECT f.id as request_id, u.id, u.username, u.profile_pic, f.created_at
+                                   FROM friends f JOIN users u ON f.user_id = u.id
+                                   WHERE f.friend_id = ? AND f.status = 'pending'
+                                   ORDER BY f.created_at DESC");
+            $stmt->execute([$user_id]);
+            j($stmt->fetchAll(PDO::FETCH_ASSOC));
+        }
+
+        if ($method === 'GET' && $second === 'count') {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM friends WHERE friend_id = ? AND status = 'pending'");
+            $stmt->execute([$user_id]);
+            j(['count' => (int) $stmt->fetchColumn()]);
+        }
+
+        if ($method === 'GET' && $second === 'status') {
+            if (!$user_id) j(['status' => 'none']);
+            $friend_id = get_int($_GET, 'friend_id');
+            if (!$friend_id) j(['status' => 'none']);
+            $chk = $pdo->prepare("SELECT id, status, user_id FROM friends
+                                  WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
+            $chk->execute([$user_id, $friend_id, $friend_id, $user_id]);
+            $row = $chk->fetch(PDO::FETCH_ASSOC);
+            if (!$row) j(['status' => 'none']);
+            $direction = ($row['user_id'] == $user_id) ? 'sent' : 'received';
+            j(['status' => $row['status'], 'direction' => $direction, 'request_id' => (int) $row['id']]);
+        }
+
+        if ($method === 'POST' && $second === 'send') {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $friend_id = get_int($_POST, 'friend_id');
+            if (!$friend_id || $friend_id === $user_id) j(['error' => 'Invalid user'], 400);
+            $chk = $pdo->prepare("SELECT id, status FROM friends
+                                  WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
+            $chk->execute([$user_id, $friend_id, $friend_id, $user_id]);
+            if ($chk->fetch()) j(['error' => 'Already exists'], 409);
+            $ins = $pdo->prepare("INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'pending')");
+            $ins->execute([$user_id, $friend_id]);
+            j(['status' => 'ok', 'message' => 'Friend request sent'], 201);
+        }
+
+        if ($method === 'POST' && $second === 'accept') {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $request_id = get_int($_POST, 'request_id');
+            if (!$request_id) j(['error' => 'request_id required'], 400);
+            $upd = $pdo->prepare("UPDATE friends SET status = 'accepted' WHERE id = ? AND friend_id = ?");
+            $upd->execute([$request_id, $user_id]);
+            if ($upd->rowCount() === 0) j(['error' => 'Not found'], 404);
+            j(['status' => 'ok']);
+        }
+
+        if ($method === 'POST' && ($second === 'reject' || $second === 'cancel' || $second === 'unfriend')) {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $friend_id = get_int($_POST, 'friend_id');
+            $request_id = get_int($_POST, 'request_id');
+            if ($request_id) {
+                $del = $pdo->prepare("DELETE FROM friends WHERE id = ? AND (user_id = ? OR friend_id = ?)");
+                $del->execute([$request_id, $user_id, $user_id]);
+            } elseif ($friend_id) {
+                $del = $pdo->prepare("DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
+                $del->execute([$user_id, $friend_id, $friend_id, $user_id]);
+            } else {
+                j(['error' => 'friend_id or request_id required'], 400);
+            }
+            j(['status' => 'ok']);
+        }
+
+        // Default GET for friends (same as list)
+        if ($method === 'GET') {
+            if (!$user_id) j(['error' => 'user_id required'], 400);
+            $stmt = $pdo->prepare("SELECT u.id, u.username, u.bio, u.profile_pic
+                                   FROM friends f
+                                   JOIN users u ON (CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END = u.id)
+                                   WHERE (f.user_id = ? OR f.friend_id = ?) AND f.status = 'accepted'
+                                   ORDER BY u.username ASC");
+            $stmt->execute([$user_id, $user_id, $user_id]);
+            j($stmt->fetchAll(PDO::FETCH_ASSOC));
+        }
+
         j(['error' => 'method not allowed'], 405);
     }
 
