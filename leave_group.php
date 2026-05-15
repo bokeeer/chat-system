@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$user_id = (int)$_SESSION['user_id'];
-$group_id = isset($_POST['group_id']) ? (int)$_POST['group_id'] : 0;
+$user_id = (int) $_SESSION['user_id'];
+$group_id = isset($_POST['group_id']) ? (int) $_POST['group_id'] : 0;
 
 if ($group_id <= 0) {
     http_response_code(400);
@@ -37,18 +37,19 @@ try {
 
     $count = $pdo->prepare("SELECT COUNT(*) FROM group_members WHERE group_id = ?");
     $count->execute([$group_id]);
-    $remaining = (int)$count->fetchColumn();
+    $remaining = (int) $count->fetchColumn();
     if ($remaining === 0) {
         $pdo->beginTransaction();
         $pdo->prepare("DELETE FROM group_messages WHERE group_id = ?")->execute([$group_id]);
-        $pdo->prepare("DELETE FROM groups WHERE id = ?")->execute([$group_id]);
+        $pdo->prepare("DELETE FROM `groups` WHERE id = ?")->execute([$group_id]);
         $pdo->commit();
     }
 
     echo "Success";
 } catch (PDOException $e) {
-    if ($pdo->inTransaction()) $pdo->rollBack();
+    if ($pdo->inTransaction())
+        $pdo->rollBack();
     http_response_code(500);
     echo "Database error: " . $e->getMessage();
 }
-?> 
+?>

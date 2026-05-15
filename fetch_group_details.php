@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $current_user_id = $_SESSION['user_id'];
-$group_id = isset($_GET['group_id']) ? (int)$_GET['group_id'] : 0;
+$group_id = isset($_GET['group_id']) ? (int) $_GET['group_id'] : 0;
 
 if (!$group_id) {
     http_response_code(400);
@@ -19,7 +19,7 @@ if (!$group_id) {
 
 try {
     // 1. Fetch Group Metadata
-    $stmt = $pdo->prepare("SELECT id, name, owner_id, is_channel, channel_type, description, profile_pic, join_token, view_only FROM groups WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, name, owner_id, is_channel, channel_type, description, profile_pic, join_token, view_only FROM `groups` WHERE id = ?");
     $stmt->execute([$group_id]);
     $group = $stmt->fetch(PDO::FETCH_ASSOC);
 

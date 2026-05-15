@@ -8,8 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = (int)$_SESSION['user_id'];
-$group_id = isset($_POST['group_id']) ? (int)$_POST['group_id'] : 0;
+$user_id = (int) $_SESSION['user_id'];
+$group_id = isset($_POST['group_id']) ? (int) $_POST['group_id'] : 0;
 $name = trim($_POST['name'] ?? '');
 $description = trim($_POST['description'] ?? '');
 
@@ -24,7 +24,7 @@ try {
     $stmt = $pdo->prepare("
         SELECT gm.is_admin, g.owner_id 
         FROM group_members gm
-        JOIN groups g ON g.id = gm.group_id
+        JOIN `groups` g ON g.id = gm.group_id
         WHERE gm.group_id = ? AND gm.user_id = ?
     ");
     $stmt->execute([$group_id, $user_id]);
@@ -47,10 +47,10 @@ try {
     }
 
     if ($profile_pic) {
-        $upd = $pdo->prepare("UPDATE groups SET name = ?, description = ?, profile_pic = ? WHERE id = ?");
+        $upd = $pdo->prepare("UPDATE `groups` SET name = ?, description = ?, profile_pic = ? WHERE id = ?");
         $upd->execute([$name, $description, $profile_pic, $group_id]);
     } else {
-        $upd = $pdo->prepare("UPDATE groups SET name = ?, description = ? WHERE id = ?");
+        $upd = $pdo->prepare("UPDATE `groups` SET name = ?, description = ? WHERE id = ?");
         $upd->execute([$name, $description, $group_id]);
     }
 

@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $current_user_id = $_SESSION['user_id'];
-$group_id = isset($_POST['group_id']) ? (int)$_POST['group_id'] : 0;
-$target_user_id = isset($_POST['user_id']) ? (int)$_POST['user_id'] : 0;
+$group_id = isset($_POST['group_id']) ? (int) $_POST['group_id'] : 0;
+$target_user_id = isset($_POST['user_id']) ? (int) $_POST['user_id'] : 0;
 $action = isset($_POST['action']) ? $_POST['action'] : ''; // 'kick', 'toggle_admin'
 
 if (!$group_id || !$target_user_id) {
@@ -29,7 +29,7 @@ try {
     // 1. Check current user's permissions
     $stmt = $pdo->prepare("
         SELECT g.owner_id, gm.is_admin 
-        FROM groups g
+        FROM `groups` g
         JOIN group_members gm ON g.id = gm.group_id
         WHERE g.id = ? AND gm.user_id = ?
     ");
@@ -44,11 +44,11 @@ try {
 
     $is_owner = ($perms['owner_id'] == $current_user_id);
     $is_admin = $is_owner || ($perms['is_admin'] == 1);
-    
+
     // Check target user's info (if they are ALREADY a member)
     $stmt = $pdo->prepare("
         SELECT g.owner_id as g_owner, gm.is_admin as target_is_admin 
-        FROM groups g
+        FROM `groups` g
         JOIN group_members gm ON g.id = gm.group_id
         WHERE g.id = ? AND gm.user_id = ?
     ");
@@ -63,7 +63,7 @@ try {
             echo json_encode(['error' => 'User is already a member']);
             exit;
         }
-        
+
         $ins = $pdo->prepare("INSERT INTO group_members (group_id, user_id, is_admin) VALUES (?, ?, 0)");
         $ins->execute([$group_id, $target_user_id]);
         echo json_encode(['status' => 'Success', 'action' => 'Added']);

@@ -14,10 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$owner_id = (int)$_SESSION['user_id'];
+$owner_id = (int) $_SESSION['user_id'];
 $name = isset($_POST['name']) ? trim($_POST['name']) : '';
 $description = isset($_POST['description']) ? trim($_POST['description']) : '';
-$is_channel = isset($_POST['is_channel']) ? (int)$_POST['is_channel'] : 0;
+$is_channel = isset($_POST['is_channel']) ? (int) $_POST['is_channel'] : 0;
 $channel_type = isset($_POST['channel_type']) ? $_POST['channel_type'] : 'public';
 $member_ids_raw = isset($_POST['member_ids']) ? trim($_POST['member_ids']) : '';
 
@@ -30,8 +30,9 @@ if ($name === '') {
 $profile_pic = null;
 if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = __DIR__ . '/uploads/avatars/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-    
+    if (!is_dir($uploadDir))
+        mkdir($uploadDir, 0755, true);
+
     $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
     $filename = 'group_' . bin2hex(random_bytes(8)) . '.' . $ext;
     if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir . $filename)) {
@@ -46,12 +47,12 @@ if ($is_channel || $channel_type === 'private') {
 
 try {
     $pdo->beginTransaction();
-    
-    $sql = "INSERT INTO groups (name, owner_id, is_channel, channel_type, description, profile_pic, join_token) 
+
+    $sql = "INSERT INTO `groups` (name, owner_id, is_channel, channel_type, description, profile_pic, join_token) 
             VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$name, $owner_id, $is_channel, $channel_type, $description, $profile_pic, $join_token]);
-    $group_id = (int)$pdo->lastInsertId();
+    $group_id = (int) $pdo->lastInsertId();
 
     // Add owner as admin member
     $memIns = $pdo->prepare("INSERT INTO group_members (group_id, user_id, is_admin) VALUES (?, ?, ?)");
@@ -71,13 +72,14 @@ try {
 
     header('Content-Type: application/json');
     echo json_encode([
-        'status' => 'Success', 
-        'group_id' => $group_id, 
+        'status' => 'Success',
+        'group_id' => $group_id,
         'join_token' => $join_token,
         'is_channel' => $is_channel
     ]);
 } catch (PDOException $e) {
-    if ($pdo->inTransaction()) $pdo->rollBack();
+    if ($pdo->inTransaction())
+        $pdo->rollBack();
     http_response_code(500);
     echo json_encode(['error' => "Database error: " . $e->getMessage()]);
 }

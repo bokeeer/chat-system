@@ -7,12 +7,12 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = (int)$_SESSION['user_id'];
+$user_id = (int) $_SESSION['user_id'];
 
 try {
     $stmt = $pdo->prepare("
         SELECT g.id, g.name, g.owner_id, g.created_at, g.is_channel, g.channel_type, g.description, g.profile_pic, g.join_token, gm.last_read_id
-        FROM groups g
+        FROM `groups` g
         INNER JOIN group_members gm ON gm.group_id = g.id
         WHERE gm.user_id = ?
         ORDER BY g.created_at DESC
@@ -28,7 +28,7 @@ try {
         ORDER BY m.id DESC
         LIMIT 1
     ");
-    
+
     $unreadStmt = $pdo->prepare("
         SELECT COUNT(*) FROM group_messages WHERE group_id = ? AND id > ? AND user_id != ?
     ");
@@ -38,7 +38,7 @@ try {
         $last_message = '';
         $last_time = '';
         $unread_count = 0;
-        
+
         $lastStmt->execute([$g['id']]);
         if ($row = $lastStmt->fetch(PDO::FETCH_ASSOC)) {
             $msgPreview = $row['message'];
@@ -48,15 +48,15 @@ try {
             }
             $last_message = $row['username'] . ': ' . $msgPreview;
             $last_time = $row['created_at'];
-            
+
             $unreadStmt->execute([$g['id'], $g['last_read_id'], $user_id]);
-            $unread_count = (int)$unreadStmt->fetchColumn();
+            $unread_count = (int) $unreadStmt->fetchColumn();
         }
         $result[] = [
-            'id' => (int)$g['id'],
+            'id' => (int) $g['id'],
             'name' => $g['name'],
-            'owner_id' => (int)$g['owner_id'],
-            'is_channel' => (int)$g['is_channel'],
+            'owner_id' => (int) $g['owner_id'],
+            'is_channel' => (int) $g['is_channel'],
             'channel_type' => $g['channel_type'],
             'description' => $g['description'],
             'profile_pic' => $g['profile_pic'],
@@ -73,4 +73,4 @@ try {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }
-?> 
+?>

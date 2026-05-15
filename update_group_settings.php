@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $current_user_id = $_SESSION['user_id'];
-$group_id = isset($_POST['group_id']) ? (int)$_POST['group_id'] : 0;
-$view_only = isset($_POST['view_only']) ? (int)$_POST['view_only'] : 0;
+$group_id = isset($_POST['group_id']) ? (int) $_POST['group_id'] : 0;
+$view_only = isset($_POST['view_only']) ? (int) $_POST['view_only'] : 0;
 
 if (!$group_id) {
     http_response_code(400);
@@ -28,7 +28,7 @@ try {
     // 1. Verify that user is owner or admin
     $stmt = $pdo->prepare("
         SELECT g.owner_id, gm.is_admin 
-        FROM groups g
+        FROM `groups` g
         JOIN group_members gm ON g.id = gm.group_id
         WHERE g.id = ? AND gm.user_id = ?
     ");
@@ -49,7 +49,7 @@ try {
     }
 
     // 2. Update Settings
-    $upd = $pdo->prepare("UPDATE groups SET view_only = ? WHERE id = ?");
+    $upd = $pdo->prepare("UPDATE `groups` SET view_only = ? WHERE id = ?");
     $upd->execute([$view_only, $group_id]);
 
     echo json_encode(['status' => 'Success', 'view_only' => $view_only]);

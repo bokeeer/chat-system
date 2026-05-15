@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $message = trim($_POST['message'] ?? '');
     $user_id = $_SESSION['user_id'];
-    $group_id = isset($_POST['group_id']) && !empty($_POST['group_id']) ? (int)$_POST['group_id'] : null;
+    $group_id = isset($_POST['group_id']) && !empty($_POST['group_id']) ? (int) $_POST['group_id'] : null;
     $receiver_id = isset($_POST['receiver_id']) && !empty($_POST['receiver_id']) ? $_POST['receiver_id'] : null;
 
     $attachment = null;
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // ... (existing group check)
                 $chk = $pdo->prepare("
                     SELECT g.view_only, g.owner_id, gm.is_admin 
-                    FROM groups g
+                    FROM `groups` g
                     JOIN group_members gm ON g.id = gm.group_id
                     WHERE g.id = ? AND gm.user_id = ?
                 ");
